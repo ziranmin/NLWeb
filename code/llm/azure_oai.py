@@ -19,6 +19,8 @@ from llm.llm_provider import LLMProvider
 from utils.logging_config_helper import get_configured_logger, LogLevel
 logger = get_configured_logger("azure_oai")
 
+from azure.identity import ChainedTokenCredential, AzureCliCredential, ManagedIdentityCredential, get_bearer_token_provider
+
 
 class AzureOpenAIProvider(LLMProvider):
     """Implementation of LLMProvider for Azure OpenAI."""
@@ -78,18 +80,26 @@ class AzureOpenAIProvider(LLMProvider):
         """Get or initialize the Azure OpenAI client."""
         with cls._client_lock:  # Thread-safe client initialization
             if cls._client is None:
-                endpoint = cls.get_azure_endpoint()
-                api_key = cls.get_api_key()
-                api_version = cls.get_api_version()
-                if not all([endpoint, api_key, api_version]):
-                    error_msg = "Missing required Azure OpenAI configuration"
-                    logger.error(error_msg)
-                    raise ValueError(error_msg)
+                # endpoint = cls.get_azure_endpoint()
+                # api_key = cls.get_api_key()
+                # api_version = cls.get_api_version()
+                endpoint = "https://trapi.research.microsoft.com/msrne/shared"
+                api_version = "2024-12-01-preview"
+                # if not all([endpoint, api_key, api_version]):
+                #     error_msg = "Missing required Azure OpenAI configuration"
+                #     logger.error(error_msg)
+                #     raise ValueError(error_msg)
                     
                 try:
+                    scope = "api://trapi/.default"
+                    credential = get_bearer_token_provider(ChainedTokenCredential(
+                        AzureCliCredential(),
+                        ManagedIdentityCredential(),
+                    ), scope)
                     cls._client = AsyncAzureOpenAI(
                         azure_endpoint=endpoint,
-                        api_key=api_key,
+                        # api_key=api_key,
+                        azure_ad_token_provider=credential,
                         api_version=api_version,
                         timeout=30.0  # Set timeout explicitly
                     )
@@ -180,7 +190,8 @@ class AzureOpenAIProvider(LLMProvider):
             TimeoutError: If the request times out
         """
         # Use specified model or get from config based on tier
-        model_to_use = model if model else self.get_model_from_config(high_tier)
+        # model_to_use = model if model else self.get_model_from_config(high_tier)
+        model_to_use = 'gpt-4o_2024-11-20'
         
         client = self.get_client()
         system_prompt = f"""Provide a response that matches this JSON schema: {json.dumps(schema)}"""

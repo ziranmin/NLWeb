@@ -127,6 +127,7 @@ async def ask_llm(
             provider_instance.get_completion(prompt, schema, model=model_id),
             timeout=timeout
         )
+        print("RESULTTTTTTTTTTTTTTTTTTTTT: " + str(result))
         logger.debug(f"{provider_name} response received, size: {len(str(result))} chars")
         return result
         

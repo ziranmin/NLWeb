@@ -43,6 +43,7 @@ async def check_llm_api(llm_name) -> bool:
         schema = {"capital": "string"}
         test_prompt = "What is the capital of France?"
         # Using a larger timeout than the default because we don't want to fail on slow responses
+        print("LLM NAME: " + llm_name)
         output = await ask_llm(test_prompt, schema=schema, provider=llm_name, timeout=20)
         #print(f"Output from {llm_name}: {output}")
         if not output:
@@ -154,10 +155,10 @@ async def main():
         print(f"Using configuration from preferred embedding provider: {embedding_config}")
         tasks.append(check_embedding_api(embedding_config))
         
-        retrieval_config = CONFIG.preferred_retrieval_endpoint
-        retrieval_dbtype_config = CONFIG.retrieval_endpoints[CONFIG.preferred_retrieval_endpoint].db_type
-        print(f"Using configuration from preferred retrieval endpoint: {retrieval_config} with db_type {retrieval_dbtype_config}")  
-        tasks.append(check_retriever(retrieval_config))
+        # retrieval_config = CONFIG.preferred_retrieval_endpoint
+        # retrieval_dbtype_config = CONFIG.retrieval_endpoints[CONFIG.preferred_retrieval_endpoint].db_type
+        # print(f"Using configuration from preferred retrieval endpoint: {retrieval_config} with db_type {retrieval_dbtype_config}")  
+        # tasks.append(check_retriever(retrieval_config))
     
     # Run all tasks concurrently
     results = await asyncio.gather(*tasks, return_exceptions=True)

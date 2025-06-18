@@ -37,8 +37,8 @@ endpoints:
     api_version_env: "2024-12-01-preview"
     llm_type: azure_openai
     models:
-      high: gpt-4.1
-      low: gpt-4.1-mini
+      high: gpt-4o_2024-11-20
+      low: gpt-4o_2024-11-20
 
   llama_azure:
     api_key_env: LLAMA_AZURE_API_KEY

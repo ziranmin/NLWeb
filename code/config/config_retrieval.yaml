@@ -1,4 +1,4 @@
-preferred_endpoint: nlweb_west
+preferred_endpoint: qdrant_local
 
 endpoints:
   nlweb_west:
@@ -20,7 +20,7 @@ endpoints:
     db_type: azure_ai_search
     name: NLWeb_Crawl_Backup
 
-  # Milvus is still under development and not yet supported. 
+  # Milvus is still under development and not yet supported.
   milvus:
     api_endpoint_env: MILVUS_ENDPOINT
     api_key_env: MILVUS_TOKEN
@@ -35,7 +35,7 @@ endpoints:
     index_name: nlweb_collection
     # Specify the database type
     db_type: qdrant
-    
+
   # Option 2: Remote Qdrant server
   qdrant_url:
     # Connect to a Qdrant server at a specific URL
@@ -76,4 +76,3 @@ endpoints:
     db_type: opensearch
     # Use script_score for vector similarity (slower but works without plugins)
     use_knn: false
-

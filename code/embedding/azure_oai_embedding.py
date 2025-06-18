@@ -17,6 +17,8 @@ from config.config import CONFIG
 
 from utils.logging_config_helper import get_configured_logger, LogLevel
 logger = get_configured_logger("azure_oai_embedding")
+from azure.identity import ChainedTokenCredential, AzureCliCredential, ManagedIdentityCredential, get_bearer_token_provider
+
 
 # Global client with thread-safe initialization
 _client_lock = threading.Lock()
@@ -57,19 +59,34 @@ def get_azure_openai_client():
     global azure_openai_client
     with _client_lock:  # Thread-safe client initialization
         if azure_openai_client is None:
-            endpoint = get_azure_openai_endpoint()
-            api_key = get_azure_openai_api_key()
-            api_version = get_azure_openai_api_version()
+            # endpoint = get_azure_openai_endpoint()
+            # api_key = get_azure_openai_api_key()
+            # api_version = get_azure_openai_api_version()
+
+            endpoint = "https://trapi.research.microsoft.com/msrne/shared"
+            api_version = "2024-12-01-preview"
             
-            if not all([endpoint, api_key, api_version]):
-                error_msg = "Missing required Azure OpenAI configuration"
-                logger.error(error_msg)
-                raise ValueError(error_msg)
+            # if not all([endpoint, api_key, api_version]):
+            #     error_msg = "Missing required Azure OpenAI configuration"
+            #     logger.error(error_msg)
+            #     raise ValueError(error_msg)
                 
             try:
+                # azure_openai_client = AsyncAzureOpenAI(
+                #     azure_endpoint=endpoint,
+                #     api_key=api_key,
+                #     api_version=api_version,
+                #     timeout=30.0  # Set timeout explicitly
+                # )
+                scope = "api://trapi/.default"
+                credential = get_bearer_token_provider(ChainedTokenCredential(
+                    AzureCliCredential(),
+                    ManagedIdentityCredential(),
+                ), scope)
                 azure_openai_client = AsyncAzureOpenAI(
                     azure_endpoint=endpoint,
-                    api_key=api_key,
+                    # api_key=api_key,
+                    azure_ad_token_provider=credential,
                     api_version=api_version,
                     timeout=30.0  # Set timeout explicitly
                 )
@@ -99,14 +116,16 @@ async def get_azure_embedding(
     client = get_azure_openai_client()
     
     # If model is not provided, get from config
-    if model is None:
-        provider_config = CONFIG.get_embedding_provider("azure_openai")
-        if provider_config and provider_config.model:
-            model = provider_config.model
-        else:
-            # Default to a common embedding model name
-            model = "text-embedding-3-small"
+    # if model is None:
+    #     provider_config = CONFIG.get_embedding_provider("azure_openai")
+    #     if provider_config and provider_config.model:
+    #         model = provider_config.model
+    #     else:
+    #         # Default to a common embedding model name
+    #         model = "text-embedding-3-small"
     
+    model = "text-embedding-3-small_1"
+
     logger.debug(f"Generating Azure OpenAI embedding with model: {model}")
     logger.debug(f"Text length: {len(text)} chars")
     
@@ -151,15 +170,17 @@ async def get_azure_batch_embeddings(
     """
     client = get_azure_openai_client()
     
-    # If model is not provided, get from config
-    if model is None:
-        provider_config = CONFIG.get_embedding_provider("azure_openai")
-        if provider_config and provider_config.model:
-            model = provider_config.model
-        else:
-            # Default to a common embedding model name
-            model = "text-embedding-3-small"
+    # # If model is not provided, get from config
+    # if model is None:
+    #     provider_config = CONFIG.get_embedding_provider("azure_openai")
+    #     if provider_config and provider_config.model:
+    #         model = provider_config.model
+    #     else:
+    #         # Default to a common embedding model name
+    #         model = "text-embedding-3-small"
     
+    model = "text-embedding-3-small_1"
+
     logger.debug(f"Generating Azure OpenAI batch embeddings with model: {model}")
     logger.debug(f"Batch size: {len(texts)} texts")
     

@@ -165,7 +165,7 @@ class AzureOpenAIProvider(LLMProvider):
         model: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: int = 2048,
-        timeout: float = 8.0,
+        timeout: float = 30,
         high_tier: bool = False,
         **kwargs
     ) -> Dict[str, Any]:

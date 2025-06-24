@@ -55,10 +55,13 @@ def process_line(line):
         json_data = parts[1]
         return url, json_data
     elif len(parts) == 1:
+        print("len(parts) == 1")
         # Format: JSON only, extract URL from within the JSON
         json_data = parts[0]
         try:
             json_obj = json.loads(json_data)
+            print("json_obj url: ", json_obj["url"])
+            # print("json_obj: ", json_obj)
             
             # Try to extract URL from common fields
             url = None
@@ -817,12 +820,17 @@ async def loadJsonToDB(file_path: str, site: str, batch_size: int = 100, delete_
                 try:
                     # Process the line, handling JSON-only format if needed
                     url, json_data = process_line(line)
-                    
+
+
+                    print("URL:", url)
+                    # print("JSON Data:", json_data)
+
                     if url is None or json_data is None:
                         continue
                     
                     # Prepare documents
                     documents, _ = prepare_documents_from_json(url, json_data, site)
+                    # print("documents:", documents)
                     all_documents.extend(documents)
                 except Exception as e:
                     print(f"Error processing line: {str(e)}")

@@ -45,7 +45,7 @@ async def check_llm_api(llm_name) -> bool:
         # Using a larger timeout than the default because we don't want to fail on slow responses
         print("LLM NAME: " + llm_name)
         output = await ask_llm(test_prompt, schema=schema, provider=llm_name, timeout=20)
-        #print(f"Output from {llm_name}: {output}")
+        print(f"Output from {llm_name}: {output}")
         if not output:
             print(f"❌ LLM API connectivity check failed for {llm_name}: No valid output received.")
             return False
@@ -147,18 +147,19 @@ async def main():
         print("Checking NLWeb configuration and connectivity...")
     
         # Retrieve preferred provider from config
-        model_config = CONFIG.preferred_llm_endpoint
-        print(f"Using configuration from preferred LLM provider: {model_config}")
-        tasks.append(check_llm_api(model_config))
+        # model_config = CONFIG.preferred_llm_endpoint
+        # print(f"Using configuration from preferred LLM provider: {model_config}")
+        # tasks.append(check_llm_api(model_config))
         
-        embedding_config = CONFIG.preferred_embedding_provider
-        print(f"Using configuration from preferred embedding provider: {embedding_config}")
-        tasks.append(check_embedding_api(embedding_config))
+        # embedding_config = CONFIG.preferred_embedding_provider
+        # print(f"Using configuration from preferred embedding provider: {embedding_config}")
+        # tasks.append(check_embedding_api(embedding_config))
         
-        # retrieval_config = CONFIG.preferred_retrieval_endpoint
-        # retrieval_dbtype_config = CONFIG.retrieval_endpoints[CONFIG.preferred_retrieval_endpoint].db_type
-        # print(f"Using configuration from preferred retrieval endpoint: {retrieval_config} with db_type {retrieval_dbtype_config}")  
-        # tasks.append(check_retriever(retrieval_config))
+        retrieval_config = CONFIG.preferred_retrieval_endpoint
+        retrieval_dbtype_config = CONFIG.retrieval_endpoints[CONFIG.preferred_retrieval_endpoint].db_type
+        print(f"Using configuration from preferred retrieval endpoint: {retrieval_config} with db_type {retrieval_dbtype_config}")  
+        print("retrieval_config: " + str(retrieval_config))
+        tasks.append(check_retriever(retrieval_config))
     
     # Run all tasks concurrently
     results = await asyncio.gather(*tasks, return_exceptions=True)

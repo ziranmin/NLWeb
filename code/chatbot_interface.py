@@ -35,7 +35,6 @@ async def forward_to_nlweb(function_name: str, arguments: Dict[str, Any], server
                 "arguments": json.dumps(arguments)
             }
         }
-        
         # Print some debug info to stderr (won't interfere with stdio protocol)
         print(f"Forwarding to {nlweb_mcp_url}: {function_name}", file=sys.stderr)
         
@@ -62,7 +61,7 @@ async def forward_to_nlweb(function_name: str, arguments: Dict[str, Any], server
             "error": f"Request failed: {str(e)}"
         }
 
-async def serve(server_url: str = DEFAULT_SERVER_URL, endpoint: str = DEFAULT_ENDPOINT) -> None:
+async def serve(server_url: str = DEFAULT_SERVER_URL, endpoint: str = DEFAULT_ENDPOINT, site: str = "all") -> None:
     """
     Run the simplified MCP server that forwards requests to NLWeb
     
@@ -180,6 +179,7 @@ async def serve(server_url: str = DEFAULT_SERVER_URL, endpoint: str = DEFAULT_EN
     @server.call_tool()
     async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         """Forward tool calls to NLWeb"""
+        arguments["site"] = site
         result = await forward_to_nlweb(name, arguments, server_url, endpoint)
         
         if "error" in result:
@@ -258,8 +258,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Claude interface for NLWeb")
     parser.add_argument("--server", default=DEFAULT_SERVER_URL, help="NLWeb server URL")
     parser.add_argument("--endpoint", default=DEFAULT_ENDPOINT, help="NLWeb server endpoint")
+    parser.add_argument("--site", default="all", help="Site name to query")
     
     args = parser.parse_args()
     
     # Run the server with the specified parameters
-    asyncio.run(serve(args.server, args.endpoint))
+    asyncio.run(serve(args.server, args.endpoint, args.site))
